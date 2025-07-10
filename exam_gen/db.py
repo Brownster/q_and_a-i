@@ -34,6 +34,14 @@ def init_db():
         conn.commit()
 
 
+def clear():
+    """Remove all records for testing."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("TRUNCATE TABLE documents")
+        conn.commit()
+
+
 def insert_chunks(source, chunks, embeddings):
     records = list(zip([source] * len(chunks), chunks, embeddings))
     with get_conn() as conn:
