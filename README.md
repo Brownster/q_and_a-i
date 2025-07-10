@@ -18,6 +18,23 @@ milestones will generate practice exam questions from this corpus.
    from exam_gen import retrieval
    print(retrieval.query("terraform backend"))
    ```
+## Runbook
+
+To create a practice exam and export it for Udemy:
+1. Provide a text file `objectives.txt` with one Terraform topic per line.
+2. Generate questions:
+   ```bash
+   python generate_dataset.py objectives.txt exam.json
+   ```
+3. Convert to Udemy CSV:
+   ```bash
+   python export_udemy.py exam.json udemy_questions.csv
+   ```
+4. Build a Docker image for distribution:
+   ```bash
+   docker build -t exam-generator .
+   ```
+
 
 ## Development
 
