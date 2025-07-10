@@ -18,6 +18,7 @@ def wait_for_db(retries=5):
 def test_insert_and_search():
     wait_for_db()
     db.init_db()
+    db.clear()
     text = 'terraform state management'
     chunks = ['terraform state management example']
     embs = embeddings.embed_texts(chunks)
