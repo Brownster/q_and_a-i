@@ -19,12 +19,15 @@ def researcher(state: Dict) -> Dict:
 def questioner(state: Dict) -> Dict:
     """Generate a single exam question."""
     context = state.get("context", "")
+    # track how many times we've attempted to generate
+    retries = state.get("retries", 0) + 1
+    state["retries"] = retries
     prompt = [
         {"role": "system", "content": "Write one Terraform exam question."},
         {"role": "user", "content": context},
     ]
     question = chat(prompt)
-    return {"question": question}
+    return {"question": question, "retries": retries}
 
 
 def answerer(state: Dict) -> Dict:
