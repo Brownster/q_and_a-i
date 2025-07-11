@@ -10,11 +10,22 @@ from .agents import researcher, questioner, answerer, distractor, reviewer
 
 
 def should_regenerate(state: QAState) -> str:
-    """Route back to questioner if score below threshold."""
+    """Decide next step based on quality score and retry count."""
+
     score = state.get("review_score", 0.0)
-    if score < 0.0:  # disabled regeneration for tests
-        print(f"Score {score:.2f} is below threshold. Regenerating question.")
+    retries = state.get("retries", 0)
+
+    if retries > 2:
+        print("Max retries exceeded. Finishing.")
+        return END
+
+    if score < 0.5:
+        print("Score is very low. Retrying from research.")
+        return "research"
+    if score < 0.7:
+        print("Score is below threshold. Regenerating question.")
         return "question"
+
     print(f"Score {score:.2f} is acceptable. Finishing.")
     return END
 
@@ -30,6 +41,7 @@ class QAState(TypedDict, total=False):
     explanation: str
     distractors: List[str]
     review_score: float
+    retries: int
 
 
 def build_graph():
@@ -51,6 +63,7 @@ def build_graph():
         should_regenerate,
         {
             "question": "question",
+            "research": "research",
             END: END,
         },
     )
@@ -63,7 +76,7 @@ COMP_GRAPH = build_graph()
 def generate_exam(objectives: List[str], n: int = 5) -> List[Dict]:
     results = []
     for i in range(min(n, len(objectives))):
-        state = {"objective": objectives[i]}
+        state = {"objective": objectives[i], "retries": 0}
         qa = COMP_GRAPH.invoke(state)
         results.append({
             "objective": objectives[i],

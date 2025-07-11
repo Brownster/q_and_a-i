@@ -29,7 +29,7 @@ To create a practice exam and export it for Udemy:
    ```bash
    python generate_dataset.py objectives.txt exam.json
    ```
-3. Convert to Udemy CSV:
+3. Convert to Udemy CSV (multiple-choice format):
    ```bash
    python export_udemy.py exam.json udemy_questions.csv
    ```

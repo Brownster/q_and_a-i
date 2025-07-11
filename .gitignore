@@ -3,5 +3,7 @@ __pycache__/
 *.pyc
 *.sqlite
 *.log
+# build artifacts
+exam_gen.egg-info/
 #Dockerfile
 *.pdf
