@@ -30,6 +30,18 @@ def document_grounding(objective: str, answer: str) -> float:
     return _token_overlap(answer, docs)
 
 
+def distractor_quality(distractors: List[str], answer: str, context: str) -> float:
+    """Check that distractors are relevant but not duplicates of the answer."""
+    if not distractors:
+        return 0.0
+    scores = []
+    for d in distractors:
+        relevance = _token_overlap(d, context)
+        uniqueness = 1 - _token_overlap(d, answer)
+        scores.append((relevance + uniqueness) / 2)
+    return sum(scores) / len(scores)
+
+
 def evaluate(qas: List[Dict]) -> float:
     """Return average factual-consistency score for Q/A pairs."""
     scores = []
@@ -38,9 +50,13 @@ def evaluate(qas: List[Dict]) -> float:
         answer = qa.get("answer", "")
         question = qa.get("question", "")  # unused but kept for API
         context = qa.get("context", "")
+        distractors = qa.get("distractors", [])
+
         sc = self_consistency(question, answer, context)
         dg = document_grounding(obj, answer)
-        scores.append((sc + dg) / 2)
+        dq = distractor_quality(distractors, answer, context)
+
+        scores.append((sc + dg + dq) / 3)
     return sum(scores) / len(scores) if scores else 0.0
 
 

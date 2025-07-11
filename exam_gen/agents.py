@@ -3,7 +3,7 @@
 from typing import Dict
 
 from . import retrieval
-from .llm import chat, chat_structured
+from .llm import chat, chat_structured, chat_list
 from .quality import evaluate
 
 
@@ -55,6 +55,33 @@ def answerer(state: Dict) -> Dict:
         "answer": resp.get("answer", ""),
         "explanation": resp.get("explanation", ""),
     }
+
+
+def distractor(state: Dict) -> Dict:
+    """Generate plausible but incorrect answers."""
+    context = state.get("context", "")
+    question = state.get("question", "")
+    answer = state.get("answer", "")
+
+    prompt = [
+        {
+            "role": "system",
+            "content": (
+                "Given the context, question, and correct answer, generate three "
+                "plausible but incorrect answers for a multiple-choice exam."
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"Context: {context}\nQuestion: {question}\nCorrect Answer: {answer}\n"
+                "Provide three wrong answers as a JSON list."
+            ),
+        },
+    ]
+
+    resp = chat_list(prompt)
+    return {"distractors": resp.get("distractors", [])}
 
 
 def reviewer(state: Dict) -> Dict:
