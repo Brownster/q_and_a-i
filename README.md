@@ -8,7 +8,10 @@ milestones will generate practice exam questions from this corpus.
 
 1. Copy `.env.example` to `.env` and adjust values if needed.
 2. Start Postgres with `docker compose up -d`.
-3. Install dependencies: `pip install -r requirements.txt`.
+3. Install dependencies and the package in editable mode:
+   ```bash
+   pip install -e .
+   ```
 4. Ingest content with your own PDF:
    ```bash
    python ingest.py --url https://developer.hashicorp.com/terraform/docs --pdf path/to/terraform.pdf
@@ -34,6 +37,10 @@ To create a practice exam and export it for Udemy:
    ```bash
    docker build -t exam-generator .
    ```
+   Run it with your own objectives file:
+   ```bash
+   docker run -v $(pwd):/app exam-generator my_topics.txt my_exam.json
+   ```
 
 
 ## Development
@@ -46,3 +53,6 @@ pytest
 ```
 
 CI is configured via GitHub Actions in `.github/workflows/ci.yml`.
+
+Generated explanations cite the documentation sources so you can easily verify
+answers.

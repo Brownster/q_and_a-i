@@ -8,8 +8,11 @@ from .agents import researcher, questioner, answerer, reviewer
 
 
 class QAState(TypedDict, total=False):
+    """Graph state for a single question/answer."""
+
     objective: str
     context: str
+    sources: List[str]
     question: str
     answer: str
     explanation: str

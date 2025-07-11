@@ -7,3 +7,6 @@ python-dotenv
 pytest
 fpdf
 langgraph
+
+langchain
+tiktoken
