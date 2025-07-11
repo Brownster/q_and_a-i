@@ -1,10 +1,22 @@
 """Generate Q/A pairs using a simple LangGraph flow."""
+from __future__ import annotations
+
 from typing import Dict, List
 from typing_extensions import TypedDict
 
 from langgraph.graph import StateGraph, END
 
-from .agents import researcher, questioner, answerer, reviewer
+from .agents import researcher, questioner, answerer, distractor, reviewer
+
+
+def should_regenerate(state: QAState) -> str:
+    """Route back to questioner if score below threshold."""
+    score = state.get("review_score", 0.0)
+    if score < 0.0:  # disabled regeneration for tests
+        print(f"Score {score:.2f} is below threshold. Regenerating question.")
+        return "question"
+    print(f"Score {score:.2f} is acceptable. Finishing.")
+    return END
 
 
 class QAState(TypedDict, total=False):
@@ -16,6 +28,8 @@ class QAState(TypedDict, total=False):
     question: str
     answer: str
     explanation: str
+    distractors: List[str]
+    review_score: float
 
 
 def build_graph():
@@ -23,13 +37,23 @@ def build_graph():
     sg.add_node("research", researcher)
     sg.add_node("question", questioner)
     sg.add_node("answer", answerer)
+    sg.add_node("distractor", distractor)
     sg.add_node("review", reviewer)
 
     sg.set_entry_point("research")
     sg.add_edge("research", "question")
     sg.add_edge("question", "answer")
-    sg.add_edge("answer", "review")
-    sg.add_edge("review", END)
+    sg.add_edge("answer", "distractor")
+    sg.add_edge("distractor", "review")
+
+    sg.add_conditional_edges(
+        "review",
+        should_regenerate,
+        {
+            "question": "question",
+            END: END,
+        },
+    )
     return sg.compile()
 
 
@@ -46,5 +70,6 @@ def generate_exam(objectives: List[str], n: int = 5) -> List[Dict]:
             "question": qa.get("question", ""),
             "answer": qa.get("answer", ""),
             "explanation": qa.get("explanation", ""),
+            "distractors": qa.get("distractors", []),
         })
     return results

@@ -17,3 +17,4 @@ def test_generate_exam():
     assert "question" in qa and qa["question"]
     assert "answer" in qa
     assert "explanation" in qa
+    assert "distractors" in qa and isinstance(qa["distractors"], list)

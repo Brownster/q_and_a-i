@@ -14,7 +14,12 @@ def test_evaluate():
         "objective": "terraform",
         "question": "What is Terraform?",
         "answer": "Terraform is an infrastructure as code tool.",
-        "context": "Terraform is an infrastructure as code tool."
+        "context": "Terraform is an infrastructure as code tool.",
+        "distractors": [
+            "A configuration language",
+            "A cloud service",
+            "A monitoring tool",
+        ],
     }]
     score = evaluate(qas)
     assert score >= 0.8
